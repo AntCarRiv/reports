@@ -1,0 +1,13 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Deploys a roe for use in others cloud formations",
+  "Resources": {
+    "RoleForDeploys": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+        }
+      }
+    }
+  }
+}
