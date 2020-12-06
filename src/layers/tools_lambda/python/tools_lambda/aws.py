@@ -29,19 +29,21 @@ def generate_presigned_post(bucket, key, expiration=3600):
     return response
 
 
-def get_ssm_parameter(parameter_name):
+def get_ssm_parameter(parameter_name, use_environment=True):
     """
     Search an parameter on the system parameter store
     :param parameter_name:
+    :param use_environment:
     :return:
     """
     ssm = boto3.client('ssm')
     try:
-        parameter_name = f'{parameter_name}-{ENVIRONMENT}'
         response = ssm.get_parameter(Name=parameter_name)['Parameter']['Value']
     except Exception as e:
         LOGGER.error(e)
         return {}
     else:
         parameters = json.loads(response)
+        if use_environment:
+            parameters = parameters.get(ENVIRONMENT)
         return parameters

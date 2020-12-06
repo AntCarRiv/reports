@@ -3,13 +3,11 @@ import os
 import pandas as pd
 from peewee import PostgresqlDatabase, Model
 from peewee import (SelectBase, database_required)
+from tools_lambda.aws import get_ssm_parameter
 
-
-database = PostgresqlDatabase('reports',
-                              **{'host': os.environ.get("HOST_DB"),
-                                 'port': os.environ.get("PORT_DB"),
-                                 'user': os.environ.get("USER_DB"),
-                                 'password': os.environ.get("PASSWORD_DB")})
+PROJECT = os.environ.get('PROJECT')
+database = PostgresqlDatabase(get_ssm_parameter('name-database', False).get(PROJECT),
+                              **get_ssm_parameter('credentials-database'))
 
 
 @database_required
