@@ -26,8 +26,42 @@
     "RoleForLambdas": {
       "Type": "AWS::IAM::Role",
       "Properties": {
+        "RoleName": "lambda-role",
         "AssumeRolePolicyDocument": {
-        }
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "policy-for-lambda",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents",
+                    "s3:*"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     "UploadFile": {
@@ -39,7 +73,7 @@
             "Arn"
           ]
         },
-        "Code": "../src/lambdas/upload_file",
+        "Code": "../src/lambdas/Documents/get_url_upload",
         "Handler": "lambda_function.lambda_handler",
         "Runtime": "python3.8",
         "FunctionName": {
@@ -49,18 +83,13 @@
               {
                 "Ref": "Environment"
               },
-              "upload_file",
+              "get_url_upload",
               {
                 "Ref": "AWS::AccountId"
               }
             ]
           ]
         },
-        "Layers": [
-          {
-            "Ref": "LayerToolsLambda"
-          }
-        ],
         "Timeout": 30,
         "MemorySize": 128,
         "Environment": {
@@ -70,32 +99,11 @@
             },
             "LOG_LEVEL": {
               "Ref": "LambdaLogLevel"
+            },
+            "BucketDocuments": {
+              "Ref": "BucketDocuments"
             }
           }
-        }
-      }
-    },
-    "LayerToolsLambda": {
-      "Type": "AWS::Lambda::LayerVersion",
-      "Properties": {
-        "CompatibleRuntimes": [
-          "python3.8"
-        ],
-        "Content": "../src/layers/tools_lambda.zip",
-        "Description": "All modules needed for use lambda",
-        "LayerName": {
-          "Fn::Join": [
-            "-",
-            [
-              {
-                "Ref": "Environment"
-              },
-              "tools_lambda",
-              {
-                "Ref": "AWS::AccountId"
-              }
-            ]
-          ]
         }
       }
     },
@@ -114,37 +122,6 @@
                 "Ref": "AWS::AccountId"
               }
             ]
-          ]
-        }
-      }
-    },
-    "SSMBuckets": {
-      "Type": "AWS::SSM::Parameter",
-      "Properties": {
-        "Type": "String",
-        "Tier": "Standard",
-        "Name": {
-          "Fn::Join": [
-            "-",
-            [
-              {
-                "Ref": "Environment"
-              },
-              "BUCKETS",
-              {
-                "Ref": "AWS::AccountId"
-              }
-            ]
-          ]
-        },
-        "Value": {
-          "Fn::Sub": [
-            "{\n  \"documents\": \"${BUCKET_DOCUMENT}\"\n}",
-            {
-              "BUCKET_DOCUMENT": {
-                "Ref": "BucketDocuments"
-              }
-            }
           ]
         }
       }
