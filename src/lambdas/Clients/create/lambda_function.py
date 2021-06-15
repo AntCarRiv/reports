@@ -4,7 +4,7 @@ from tools_lambda.generic_tools import (get_body, get_logger)
 
 from .model_event import BodyNewClient
 
-LOGGER = get_logger()
+LOGGER = get_logger(__name__)
 
 
 @web_response
